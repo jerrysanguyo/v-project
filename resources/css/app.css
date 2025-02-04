@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@source "../views";
+
+.bg-custom {
+    background-image: url('../../public/images/IMG_0424.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }

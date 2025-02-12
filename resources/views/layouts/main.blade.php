@@ -12,7 +12,7 @@
     @endif
 </head>
 
-<body class="bg-gray-900 bg-custom h-screen w-full">
+<body class="bg-custom h-screen w-full">
 
     <div>
         @yield('content')

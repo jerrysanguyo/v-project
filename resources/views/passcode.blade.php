@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('content')
-<div class="flex items-center justify-center min-h-screen bg-black/40">
+<div class="flex items-center justify-center min-h-screen bg-black/50">
     <div class="p-6 rounded-lg text-center">
         <h1 class="text-white text-3xl">Enter Passcode</h1>
         <p class="text-white mb-4">Enter the 6-digit passcode to unlock</p>

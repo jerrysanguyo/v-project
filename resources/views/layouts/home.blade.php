@@ -14,6 +14,9 @@
     <div>
         @yield('content')
     </div>
+    
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
+<script type="text/javascript" async src="https://tenor.com/embed.js"></script>
 </body>
 
 </html>

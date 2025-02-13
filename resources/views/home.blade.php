@@ -3,35 +3,16 @@
 @section('content')
 <!-- First Row: Full-width card -->
 <div class="grid grid-cols-3 gap-4 p-3 h-190 lg:w-100 lg:max-w-7xl lg:mx-auto lg:h-200">
-    <div class="col-span-3 row-span-2 flex items-center justify-center">
-        <div class="bg-gradient-to-br from-pink-300 to-purple-300  p-4 rounded-lg shadow-md w-full flex flex-col items-center">
-            <div id="track-info" class="flex items-center justify-center w-full">
-                <img id="album-art" src="" class="w-15 h-15 rounded-lg shadow-md mr-4" alt="Album Art">
-                <div class="text-left">
-                    <h2 id="track-name" class="text-lg font-semibold text-center"></h2>
-                    <p id="artist-name" class="text-sm text-gray-400 text-center"></p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-4 mt-3"><button onclick="previousTrack()" class="bg-gray-600 p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7M18 19l-7-7 7-7" />
-                </svg>
-                </button>
-
-                <button onclick="togglePlay()" class="bg-green-500 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-6.518-3.76A1 1 0 007 8.058v7.884a1 1 0 001.234.97l6.518-1.752a1 1 0 00.748-.97V12.14a1 1 0 00-.748-.97z" />
-                </svg>
-                </button>
-
-                <button onclick="nextTrack()" class="bg-gray-600 p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M6 5l7 7-7 7" />
-                </svg>
-                </button>
-            </div>
-        </div>
+<div class="col-span-3 row-span-2 flex items-center justify-center">
+    <div class="bg-gradient-to-br from-pink-300 to-purple-300 p-4 rounded-lg shadow-md w-full flex flex-col items-center justify-center">
+        <iframe class="flex content-center"
+            src="https://open.spotify.com/embed/playlist/5H4fsdUCSiUre0VwMIn2y3?utm_source=generator&theme=0" 
+            width="100%" height="80" frameBorder="0" allowfullscreen 
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+            loading="lazy">
+        </iframe>
     </div>
+</div>
 
     <div class="rounded-lg row-span-2 col-span-2">
         <div x-data="calendar()" x-init="init()" class="border-0 w-full bg-white shadow-lg rounded-lg p-4">
@@ -350,7 +331,7 @@
                                 I know this is the place you've always dreamed of going to, if you still remember when I asked you before.
                             </p>
                             <p class="text-gray-700 mb-2">
-                                I hope we can visit that place. I love you.
+                                I hope we visit that place. I love you.
                             </p>
                         <div class="mt-6 text-right">
                             <button @click="open = false" class="bg-red-500 hover:bg-red-600 transition-colors duration-150 text-white px-6 py-2 rounded-full">
@@ -363,96 +344,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    let token = '{{ session("spotify_access_token") }}';
-    if (!token) {
-        window.location.href = "{{ route('spotify.login') }}";
-    }
-
-    let player;
-
-    window.onSpotifyWebPlaybackSDKReady = () => {
-        player = new Spotify.Player({
-            name: 'Laravel Spotify Widget',
-            getOAuthToken: cb => { cb(token); },
-            volume: 0.5
-        });
-
-        player.addListener('ready', ({ device_id }) => {
-            console.log('Ready with Device ID', device_id);
-            transferPlayback(device_id);
-        });
-
-        player.addListener('player_state_changed', state => {
-            if (!state) return;
-            updateTrackInfo(state.track_window.current_track);
-        });
-
-        player.connect().then(success => {
-            if (success) {
-                console.log('The Web Playback SDK is successfully connected to Spotify!');
-            }
-        });
-
-        navigator.requestMediaKeySystemAccess('com.widevine.alpha', [{
-            initDataTypes: ['cenc'],
-            videoCapabilities: [{
-                contentType: 'video/mp4; codecs="avc1.64001E"',
-                robustness: 'SW_SECURE_CRYPTO'
-            }],
-            audioCapabilities: [{
-                contentType: 'audio/mp4; codecs="mp4a.40.2"',
-                robustness: 'SW_SECURE_CRYPTO'
-            }]
-        }]).catch(error => {
-            console.warn('Robustness level warning suppressed:', error);
-        });
-    };
-
-    function transferPlayback(device_id) {
-        fetch("https://api.spotify.com/v1/me/player", {
-            method: "PUT",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ device_ids: [device_id] })
-        }).then(response => {
-            if (response.status === 403) {
-                alert("Spotify Premium is required to use the Web Playback SDK.");
-            }
-        });
-    }
-
-    function togglePlay() {
-        if (player) {
-            player.togglePlay();
-        } else {
-            console.error("Player is not initialized.");
-        }
-    }
-
-    function nextTrack() {
-        if (player) {
-            player.nextTrack();
-        }
-    }
-
-    function previousTrack() {
-        if (player) {
-            player.previousTrack();
-        }
-    }
-
-    function updateTrackInfo(track) {
-        if (track && track.album && track.album.images && track.album.images[0]) {
-            document.getElementById("album-art").src = track.album.images[0].url;
-        }
-        if (track) {
-            document.getElementById("track-name").innerText = track.name || '';
-            document.getElementById("artist-name").innerText = (track.artists || []).map(a => a.name).join(", ");
-        }
-    }
-</script>
 @endsection
